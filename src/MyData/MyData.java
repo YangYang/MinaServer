@@ -1,3 +1,5 @@
+package MyData;
+
 import java.io.Serializable;
 
 /**

@@ -1,3 +1,4 @@
+import MyData.MyData;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MinaServer {
@@ -96,8 +98,23 @@ public class MinaServer {
                     break;
                 case 1:
                     GameRoom gameRoom = new GameRoom(myData.getRoomName());
-                    gameRoom.setSession1(session);
-                    rooms.put(gameRoom.getName(),gameRoom);
+                    boolean haveRoom = false;
+                    //如果该session之前申请过房间，抹除之前的记录
+                    for(String key : rooms.keySet()){
+                        GameRoom temp = rooms.get(key);
+                        if(temp.getSession1().getId() == session.getId()){
+                            rooms.remove(temp.getName());
+                            temp.setName(gameRoom.getName());
+                            rooms.put(temp.getName(),temp);
+                            haveRoom = true;
+                            break;
+                        }
+                    }
+                    //没有的话就加入room
+                    if(!haveRoom){
+                        gameRoom.setSession1(session);
+                        rooms.put(gameRoom.getName(),gameRoom);
+                    }
                     //建立房间
                     break;
                 case 2:
