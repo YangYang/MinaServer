@@ -1,4 +1,5 @@
 import MyData.MyData;
+import com.sun.javafx.iio.ios.IosDescriptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -91,13 +92,25 @@ public class MinaServer {
         @Override
         public void messageReceived(IoSession session, Object message) throws Exception {
             MyData myData  = (MyData)message;
-
+            GameRoom gameRoom = new GameRoom(myData.getRoomName());
             switch (myData.getType()){
                 case 0:
                     //下棋
+                    IoSession session1 = rooms.get(gameRoom.getName()).getSession1();
+                    IoSession session2 = rooms.get(gameRoom.getName()).getSession2();
+                    MyData tempM = (MyData) message;
+                    System.out.println(tempM);
+                    if(session == session1){
+                        //1 to 2
+                        session2.write(message);
+                    } else if(session == session2) {
+                        //2 to 1
+                        session1.write(message);
+                    } else {
+                        System.out.println("不知道什么错误");
+                    }
                     break;
                 case 1:
-                    GameRoom gameRoom = new GameRoom(myData.getRoomName());
                     boolean haveRoom = false;
                     //如果该session之前申请过房间，抹除之前的记录
                     for(String key : rooms.keySet()){
@@ -120,12 +133,29 @@ public class MinaServer {
                 case 2:
                     //加入房间
                     if(rooms.containsKey(myData.getRoomName()) && rooms.get(myData.getRoomName()).getSession2() == null){
+                        if(rooms.get(myData.getRoomName()).getSession1() == session){
+                            //不能加入自己的房间
+                            MyData temp = new MyData();
+                            temp.setType(-1);
+                            session.write(temp);
+                            break;
+                        }
                         //成功加入房间
                         GameRoom temp = rooms.get(myData.getRoomName());
                         temp.setSession2(session);
                         rooms.put(myData.getRoomName(),temp);
+                        MyData tempMyData = new MyData();
+                        //上线通知
+                        tempMyData.setType(3);
+                        tempMyData.setRoomName(temp.getName());
+                        temp.getSession1().write(tempMyData);
+                        temp.getSession2().write(tempMyData);
+
                     } else {
                         //返回错误的数据，房间已满或者不存在房间
+                        MyData temp = new MyData();
+                        temp.setType(-2);
+                        session.write(temp);
                     }
                     break;
                 default:
