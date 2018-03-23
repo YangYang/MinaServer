@@ -75,6 +75,22 @@ public class MinaServer {
         public void sessionClosed(IoSession session) throws Exception {
             System.out.println("SessionClosed");
             System.out.println(session.getId());
+            //在这里告诉已经连线的session对方下线
+            for(String key : rooms.keySet()){
+                GameRoom gameRoom = rooms.get(key);
+                if(gameRoom.getSession1() == session && gameRoom.getSession2()!=null){
+                    //通知session2
+                    MyData myData = new MyData();
+                    myData.setType(4);
+                    gameRoom.getSession2().write(myData);
+                } else if(gameRoom.getSession2() == session && gameRoom.getSession1()!=null){
+                    //通知session1
+                    MyData myData = new MyData();
+                    myData.setType(4);
+                    gameRoom.getSession1().write(myData);
+                }
+            }
+
         }
 
         @Override
@@ -158,8 +174,22 @@ public class MinaServer {
                         session.write(temp);
                     }
                     break;
+
+                case 5:
+                    //留下
+                    MyData temp = (MyData) message;
+                    GameRoom tempRoom = rooms.get(temp.getRoomName());
+                    tempRoom.setSession1(session);
+                    tempRoom.setSession2(null);
+                    rooms.put(tempRoom.getName(),tempRoom);
+                    break;
+                case 6:
+                    //离开
+                    MyData tempMyData = (MyData) message;
+                    rooms.remove(tempMyData.getRoomName());
+                    break;
                 default:
-                        break;
+                    break;
             }
             System.out.println("MessageReceived");
 
