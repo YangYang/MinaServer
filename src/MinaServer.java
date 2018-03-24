@@ -76,11 +76,15 @@ public class MinaServer {
             for(String key : rooms.keySet()){
                 GameRoom gameRoom = rooms.get(key);
                 if(gameRoom.getSession1() == session && gameRoom.getSession2()!=null){
+                    gameRoom.setSession1(null);
+                    rooms.put(gameRoom.getName(),gameRoom);
                     //通知session2
                     MyData myData = new MyData();
                     myData.setType(4);
                     gameRoom.getSession2().write(myData);
                 } else if(gameRoom.getSession2() == session && gameRoom.getSession1()!=null){
+                    gameRoom.setSession2(null);
+                    rooms.put(gameRoom.getName(),gameRoom);
                     //通知session1
                     MyData myData = new MyData();
                     myData.setType(4);
@@ -131,7 +135,6 @@ public class MinaServer {
                             temp.setName(gameRoom.getName());
                             rooms.put(temp.getName(),temp);
                             haveRoom = true;
-                            break;
                         }
                     }
                     //没有的话就新建一个room
@@ -193,6 +196,23 @@ public class MinaServer {
                         gameRoomTemp.getSession2().write(res);
                     } else if(gameRoomTemp.getSession2() == session){
                         gameRoomTemp.getSession1().write(res);
+                    }
+                    break;
+                case 9:
+                    GameRoom temp = rooms.get(myData.getRoomName());
+                    MyData myData1 = new MyData();
+                    myData1.setType(4);
+                    if(temp.getSession1() == session && temp.getSession2() == null){
+                        //session2下线
+                        temp.getSession1().write(myData1);
+                    } else if(temp.getSession2() == session && temp.getSession1() == null){
+                        //session1下线
+                        temp.getSession2().write(myData1);
+                    } else if(temp.getSession1() != null && temp.getSession2() != null){
+                        //都在线就不用返回
+                        myData1.setType(9);
+                        session.write(myData1);
+//                        temp.getSession2().write(myData1);
                     }
                     break;
                 default:
