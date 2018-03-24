@@ -111,8 +111,6 @@ public class MinaServer {
                     //下棋
                     IoSession session1 = rooms.get(gameRoom.getName()).getSession1();
                     IoSession session2 = rooms.get(gameRoom.getName()).getSession2();
-                    MyData tempM = (MyData) message;
-                    System.out.println(tempM);
                     if(session == session1){
                         //1 to 2
                         session2.write(message);
@@ -136,7 +134,7 @@ public class MinaServer {
                             break;
                         }
                     }
-                    //没有的话就加入room
+                    //没有的话就新建一个room
                     if(!haveRoom){
                         gameRoom.setSession1(session);
                         rooms.put(gameRoom.getName(),gameRoom);
@@ -174,16 +172,28 @@ public class MinaServer {
 
                 case 5:
                     //留下
-                    MyData temp = (MyData) message;
-                    GameRoom tempRoom = rooms.get(temp.getRoomName());
+//                    MyData temp = (MyData) message;
+                    GameRoom tempRoom = rooms.get(myData.getRoomName());
                     tempRoom.setSession1(session);
                     tempRoom.setSession2(null);
                     rooms.put(tempRoom.getName(),tempRoom);
                     break;
                 case 6:
                     //离开
-                    MyData tempMyData = (MyData) message;
-                    rooms.remove(tempMyData.getRoomName());
+//                    MyData tempMyData = (MyData) message;
+                    rooms.remove(myData.getRoomName());
+                    break;
+                case 7:
+                    //投降
+                    //发送请求的session投降
+                    GameRoom gameRoomTemp = rooms.get(myData.getRoomName());
+                    MyData res = new MyData();
+                    res.setType(8);
+                    if(gameRoomTemp.getSession1() == session){
+                        gameRoomTemp.getSession2().write(res);
+                    } else if(gameRoomTemp.getSession2() == session){
+                        gameRoomTemp.getSession1().write(res);
+                    }
                     break;
                 default:
                     break;
