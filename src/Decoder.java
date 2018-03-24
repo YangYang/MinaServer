@@ -13,12 +13,8 @@ import java.nio.charset.Charset;
  **/
 public class Decoder implements ProtocolDecoder {
 
-    private final Charset charset = Charset.forName("UTF-8");
-
     @Override
     public void decode(IoSession ioSession, IoBuffer ioBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
-//        CharsetDecoder charsetDecoder = charset.newDecoder();
-//        String str = ioBuffer.getString(charsetDecoder);
         Object obj = ioBuffer.getObject();
         protocolDecoderOutput.write(obj);
     }

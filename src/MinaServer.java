@@ -1,16 +1,13 @@
 import MyData.MyData;
-import com.sun.javafx.iio.ios.IosDescriptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class MinaServer {
@@ -192,14 +189,6 @@ public class MinaServer {
                     break;
             }
             System.out.println("MessageReceived");
-
-//
-//            if(!msg.isData()){
-//                System.out.println(msg.getMessage());
-//            } else {
-//                System.out.println("这是一个数据文件");
-//            }
-//            System.out.println(session.getId());
         }
 
         @Override

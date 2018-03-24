@@ -10,8 +10,6 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @create: 2018-03-21 16:49
  **/
 public class Encoder implements ProtocolEncoder {
-//    private final Charset charset = Charset.forName("UTF-8");
-
     @Override
     public void encode(IoSession ioSession, Object message, ProtocolEncoderOutput out) throws Exception {
 
